@@ -1,0 +1,23 @@
+---
+    - name: ENABLE REQUIRED FEATURES
+      nxos_feature:
+        feature: "{{ item.feature }}"
+      with_items: "{{ features }}"
+
+    - name: CHANGE INTERFACES to L3 Mode 
+      cisco.nxos.nxos_interfaces:
+          config:
+          - name: "{{ item.name }}"
+            enabled: true
+            mode: layer3
+      with_items: "{{ interfaces }}"
+
+    - name: CONFIGURE IP ADDRESSES ON INTERFACES
+      cisco.nxos.nxos_l3_interfaces:
+          config:
+          - name: "{{ item.name }}"
+            ipv4:
+              - address: "{{ item.ipv4 }}" 
+      with_items: 
+      - "{{ interfaces }}"
+      - "{{ loopbacks }}"

@@ -1,0 +1,95 @@
+---
+    - name: ENABLE REQUIRED FEATURES
+      nxos_feature:
+        feature: "{{ item.feature }}"
+      with_items: "{{ features }}"
+
+    - name: CHANGE INTERFACES to L3 Mode 
+      cisco.nxos.nxos_interfaces:
+          config:
+          - name: "{{ item.name }}"
+            enabled: true
+            mode: layer3
+      with_items: "{{ interfaces }}"
+
+    - name: CREATE LOOPBACK INTERFACES
+      cisco.nxos.nxos_interfaces:
+          config:
+          - name: "{{ item.name }}"
+      with_items: "{{ loopbacks }}"
+
+    - name: CONFIGURE IP ADDRESSES ON INTERFACES
+      cisco.nxos.nxos_l3_interfaces:
+          config:
+          - name: "{{ item.name }}"
+            ipv4:
+              - address: "{{ item.ipv4 }}" 
+      with_items: 
+      - "{{ interfaces }}"
+      - "{{ loopbacks }}"
+
+    - name: CHANGE INTERFACES MTU TO 9216
+      cisco.nxos.nxos_interfaces:
+          config:
+          - name: "{{ item.name }}"
+            mtu: 9216
+          state: merged
+      with_items: "{{ interfaces }}"
+
+    - name: SET THE ROUTER ID FOR THE DEFAULT VRF
+      nxos_ospf_vrf:
+        ospf: "{{ ospfproc }}"
+        router_id: "{{ router_id }}"
+
+    - name: ASSOCIATE INTERFACES WITH OSPF PROCESS
+      nxos_interface_ospf:
+        interface: "{{ item.interface }}"
+        ospf: "{{ ospfproc }}"
+        area: "{{ ospfarea }}"
+      with_items: "{{ default_vrf_interfaces }}"
+
+    - name: ENABLE NV OVERLAY EVPN
+      nxos_evpn_global:
+        nv_overlay_evpn: true
+
+    - name: ENSURE BGP ASN EXISTS
+      nxos_bgp:
+        asn: "{{ asn }}"
+        router_id: "{{ router_id }}"
+        state: present
+
+    - name: BASE AF CONFIG
+      nxos_bgp_af:
+        asn: "{{ asn }}"
+        afi: "{{ item.afi }}"
+        safi: "{{ item.safi }}"
+      with_items: "{{ address_families }}"
+
+    - name: BASE NEIGHBOR CONFIG
+      nxos_bgp_neighbor:
+        asn: "{{ asn }}"
+        neighbor: "{{ item.neighbor }}"
+        remote_as: "{{ item.remote_as }}"
+        update_source: "{{ item.update_source }}"
+      with_items: "{{ bgp_neighbors }}"
+
+    - name: CONFIGURE IPV4 UNICAST ADDRESS FAMILY
+      nxos_bgp_neighbor_af:
+        asn: "{{ asn }}"
+        neighbor: "{{ item.neighbor }}"
+        afi: ipv4
+        safi: unicast
+        send_community: both
+        route_reflector_client: "true"
+      with_items: "{{ bgp_neighbors }}"
+
+    - name: CONFIGURE L2VPN EVPN ADDRESS FAMILY
+      nxos_bgp_neighbor_af:
+        asn: "{{ asn }}"
+        neighbor: "{{ item.neighbor }}"
+        afi: l2vpn
+        safi: evpn
+        send_community: both
+        route_reflector_client: "true"
+      with_items: "{{ bgp_neighbors }}"
+
