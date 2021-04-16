@@ -23,6 +23,7 @@ pip3 install paramiko --user
 ansible-galaxy collection install cisco.nxos
 ```
 The playbook was tested with version 1.4.0
+
 3. Run the playbook. 
 ```
 ansible-playbook site.yml
