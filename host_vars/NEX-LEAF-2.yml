@@ -1,5 +1,5 @@
 --- 
-
+hostname: NEX-LEAF-2 
 router_id: 4.4.4.4
 
 interfaces: 

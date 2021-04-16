@@ -1,4 +1,5 @@
 --- 
+hostname: NEX-SPINE-1
 
 router_id: 1.1.1.1
 

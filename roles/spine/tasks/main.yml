@@ -1,4 +1,8 @@
 ---
+    - name: CHANGE HOSTNAME 
+      cisco.nxos.nxos_system:
+          hostname: "{{ hostname }}"
+
     - name: ENABLE REQUIRED FEATURES
       nxos_feature:
         feature: "{{ item.feature }}"
