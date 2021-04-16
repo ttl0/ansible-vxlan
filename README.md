@@ -3,7 +3,7 @@
 An ansible playbook to provision a VXLAN + EVPN LAB on EVE-NG using the
 following topology:
 
-![topology](topology.jpg)
+![topology](topology.png)
 
 ## Instructions
 
