@@ -1,4 +1,8 @@
 ---
+    - name: CHANGE HOSTNAME 
+      cisco.nxos.nxos_system:
+          hostname: "{{ hostname }}"
+
     - name: ENABLE REQUIRED FEATURES
       nxos_feature:
         feature: "{{ item.feature }}"
@@ -32,7 +36,7 @@
       cisco.nxos.nxos_interfaces:
           config:
           - name: "{{ item.name }}"
-            mtu: 9216
+            mtu: "9216"
           state: merged
       with_items: "{{ interfaces }}"
 
