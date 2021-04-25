@@ -23,8 +23,8 @@
   - { remote_as: 65001, neighbor: 1.1.1.1, update_source: Loopback0 }
   - { remote_as: 65001, neighbor: 2.2.2.2, update_source: Loopback0 }
 
-  s1_loopback: 1.1.1.1 
+  s1_loopback: 3.3.3.3 
 
-  s2_loopback: 2.2.2.2 
+  s2_loopback: 4.4.4.4 
 
-  rp_address: 10.2.1.1
+  rp_address: 100.2.1.1

@@ -29,7 +29,7 @@
   - { remote_as: 65001, neighbor: 3.3.3.3, update_source: Loopback0 }
   - { remote_as: 65001, neighbor: 4.4.4.4, update_source: Loopback0 }
 
-  rp_address: 10.2.1.1
+  rp_address: 100.2.1.1
 
   vlans_l2vni:
   - { vlan_id: 10, vni_id: 10010, addr: 10.0.10.1/24, mcast_grp: 239.0.0.11, vrf: Tenant-1 }

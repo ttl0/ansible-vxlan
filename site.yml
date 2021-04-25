@@ -1,11 +1,10 @@
 ---
 
-- hosts: spine
+- hosts: spine 
   roles:
       - { role: spine, tags: spine}
 
-- hosts: leaf
+- hosts: leaf 
   roles:
       - { role: leaf, tags: leaf}
-
 

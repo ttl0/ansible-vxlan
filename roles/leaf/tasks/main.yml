@@ -17,6 +17,7 @@
       cisco.nxos.nxos_interfaces:
           config:
           - name: "{{ item.interface }}"
+            enabled: true 
       with_items: "{{ loopbacks }}"
 
     - name: CONFIGURE INTERFACE IP ADDR
@@ -33,6 +34,7 @@
           config:
           - name: "{{ item.interface }}"
             mtu: 9216
+            enabled: true 
           state: merged
       with_items: "{{ l3_interfaces }}"
 
@@ -151,6 +153,8 @@
           config:
           - name: nve1 
             enabled: true 
+          state: replaced
+
 
     - name: CONFIGURE VXLAN VTEP NVE INTERFACE FOR EVPN CONTROL PLANE
       nxos_vxlan_vtep:
@@ -162,10 +166,11 @@
       nxos_vxlan_vtep_vni:
         interface: nve1
         vni: "{{ item.vni_id }}"
-        #ingress_replication: bgp
+        ingress_replication: bgp
         multicast_group: "{{ item.mcast_grp }}"
         suppress_arp: true
       with_items: "{{ vlans_l2vni }}"
+      tags: replication
 
     - name: CONFIGURE VXLAN VTEP NVE INTERFACE L3VNI MAPPING
       nxos_vxlan_vtep_vni:
@@ -217,6 +222,7 @@
           config:
           - name: "vlan{{ item.vlan_id }}" 
             fabric_forwarding_anycast_gateway: true
+            enabled: true 
       with_items: "{{ vlans_l2vni }}"
 
     - name: CONFIGURE IP FORWARD UNDER L3VNI SVI
@@ -224,6 +230,7 @@
           config:
           - name: "vlan{{ item.vlan_id }}" 
             ip_forward: true 
+            enabled: true 
       with_items: "{{ vlans_l3vni }}"
 
     - name: CONFIGURE IP ADDRESS TO L2VNI SVI
@@ -237,5 +244,23 @@
     - name: SAVE RUN CONFIG TO STARTUP CONFIG
       nxos_config:
         save_when: modified 
+
+    - name: NO SHUTDOWN OF nve1 interface manually 
+      cisco.nxos.nxos_config:
+        lines: 
+          - no shutdown 
+        parents:
+          - 'interface nve1'
+      tags: testing
+
+    - name: NO SHUTDOWN OF interface manually 
+      cisco.nxos.nxos_config:
+        lines: 
+          - no shutdown 
+        parents:
+          - 'interface vlan{{ item.vlan_id }}'
+      with_items: 
+      - "{{ vlans_l2vni }}"
+      - "{{ vlans_l3vni }}"
 
 

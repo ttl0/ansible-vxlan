@@ -3,4 +3,8 @@
 router_id: 2.2.2.2
 
 loopbacks:
+    # Underlay
   - { interface: loopback0, addr: 2.2.2.2/32 }
+    # Overlay VTEP
+  - { interface: loopback100, addr: 100.2.2.2/32 }
+

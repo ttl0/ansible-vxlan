@@ -3,4 +3,7 @@
 router_id: 3.3.3.3 
 
 loopbacks:
+    # Underlay Loopback
   - { interface: loopback0, addr: 3.3.3.3/32 }
+    # Anycast RP address, must be the same as other spines
+  - { interface: loopback100, addr: 100.2.1.1/32 }
