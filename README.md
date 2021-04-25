@@ -1,6 +1,6 @@
 # Ansible VXLAN
 
-An ansible playbook to provision a VXLAN + MP-BGP EVPN using IP unnumbered with OSPF and PIM SM in the underlay. iBGP EVPN is used as the control plane and we are simulating this in virtualized environment using EVE-NG with the following topology: 
+An ansible playbook to provision VXLAN + MP-BGP EVPN using IP unnumbered with OSPF and PIM SM in the underlay. iBGP EVPN is used as the control plane and we are simulating this in virtualized environment using EVE-NG with the following topology: 
 
 ![topology](topology.png)
 
