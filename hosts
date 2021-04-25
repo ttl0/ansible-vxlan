@@ -1,10 +1,7 @@
-## Ansible Hosts File 
-[SPINE]
-NEX-SPINE-1    ansible_host=10.0.1.41
+[leaf]
+NEX-LEAF-1    ansible_host=10.0.1.41
+NEX-LEAF-2    ansible_host=10.0.1.43
+
+[spine]
+NEX-SPINE-1    ansible_host=10.0.1.42
 NEX-SPINE-2    ansible_host=10.0.1.40
-
-[LEAF]
-NEX-LEAF-1    ansible_host=10.0.1.38
-NEX-LEAF-2    ansible_host=10.0.1.39
-
-

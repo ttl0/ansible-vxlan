@@ -1,23 +1,119 @@
 ---
-    - name: ENABLE REQUIRED FEATURES
+
+    - name: ENABLE FEATURES
       nxos_feature:
-        feature: "{{ item.feature }}"
+        feature: "{{item.feature }}"
       with_items: "{{ features }}"
 
-    - name: CHANGE INTERFACES to L3 Mode 
+    - name: CONFIGURE PHYSICAL L3 INTERFACES
       cisco.nxos.nxos_interfaces:
           config:
-          - name: "{{ item.name }}"
+          - name: "{{ item.interface }}"
             enabled: true
             mode: layer3
-      with_items: "{{ interfaces }}"
+      with_items: "{{ l3_interfaces }}"
 
-    - name: CONFIGURE IP ADDRESSES ON INTERFACES
+    - name: CONFIGURE LOOPBACK INTERFACES
+      cisco.nxos.nxos_interfaces:
+          config:
+          - name: "{{ item.interface }}"
+      with_items: "{{ loopbacks }}"
+
+    - name: CONFIGURE INTERFACE IP ADDR
       cisco.nxos.nxos_l3_interfaces:
           config:
-          - name: "{{ item.name }}"
+          - name: "{{ item.interface }}"
             ipv4:
-              - address: "{{ item.ipv4 }}" 
+              - address: "{{ item.addr }}" 
       with_items: 
-      - "{{ interfaces }}"
       - "{{ loopbacks }}"
+
+    - name: CHANGE INTERFACES MTU TO 9216
+      cisco.nxos.nxos_interfaces:
+          config:
+          - name: "{{ item.interface }}"
+            mtu: 9216
+          state: merged
+      with_items: "{{ l3_interfaces }}"
+
+    - name: CONFIGURE INTERFACE IP UNNUMBERED
+      cisco.nxos.nxos_config:
+        lines: 
+          - medium p2p
+          - ip unnumbered loopback 0
+        parents:
+          - 'interface {{ item.interface }}'
+      with_items: "{{ l3_interfaces }}"
+
+
+    - name: CONFIGURE OSPF PROCESS ID AND AREA AND ROUTER ID
+      nxos_ospf_vrf:
+        ospf: "{{ ospf_process_id }}"
+        router_id: "{{ router_id }}"
+
+    - name: ASSOCIATE INTERFACES WITH OSPF PROCESS
+      nxos_interface_ospf:
+        interface: "{{ item.interface }}"
+        ospf: "{{ ospf_process_id }}"
+        area: "{{ ospf_area }}"
+      with_items: 
+      - "{{ l3_interfaces }}"
+      - "{{ loopbacks }}"
+
+    - name: CONFIGURE OSPF INTERFACES NETWORK P2P
+      cisco.nxos.nxos_config:
+        lines: ip ospf network point-to-point
+        parents:
+          - 'interface {{ item.interface }}'
+      with_items: "{{ l3_interfaces }}"
+
+    - name: CONFIGURE PIM ANYCAST RP
+      nxos_config:
+        lines:
+          - "ip pim anycast-rp {{ rp_address }} {{ s1_loopback }}"
+          - "ip pim anycast-rp {{ rp_address }} {{ s2_loopback }}"
+
+    - name: CONFIGURE PIM RP
+      nxos_pim_rp_address:
+        rp_address: "{{ rp_address }}"
+
+    - name: CONFIGURE PIM INTERFACES
+      nxos_pim_interface:
+        interface: "{{ item.interface }}"
+        sparse: true
+      with_items: "{{ l3_interfaces }}"
+
+    - name: ENABLE NV OVERLAY EVPN
+      nxos_evpn_global:
+        nv_overlay_evpn: true
+
+    - name: CONFIGURE BGP ASN AND ROUTER ID
+      nxos_bgp:
+        asn: "{{ asn }}"
+        router_id: "{{ router_id }}"
+        state: present
+
+    - name: CONFIGURE BGP NEIGHBORS
+      nxos_bgp_neighbor:
+        asn: "{{ asn }}"
+        neighbor: "{{ item.neighbor }}"
+        remote_as: "{{ item.remote_as }}"
+        update_source: "{{ item.update_source }}"
+      with_items: "{{ bgp_neighbors }}"
+
+    - name: CONFIGURE L2VPN EVPN ADDRESS FAMILY FOR BGP NEIGHBORS
+      nxos_bgp_neighbor_af:
+        asn: "{{ asn }}"
+        neighbor: "{{ item.neighbor }}"
+        afi: l2vpn
+        safi: evpn
+        send_community: both
+        route_reflector_client: "true"
+      with_items: "{{ bgp_neighbors }}"
+
+    - name: SAVE RUN CONFIG TO STARTUP CONFIG
+      nxos_config:
+        save_when: modified
+
+
+
